@@ -1,3 +1,6 @@
+type LogLevel = "debug" | "info";
+let LOG_LEVEL: LogLevel = "info";
+
 /**
  * 計算將編號的球按規則分配到最少數量的盒子中所需要的盒子數。
  * 每個盒子中的球必須編號相同，但同一編號的球可以分到不同盒子。
@@ -7,22 +10,22 @@
  */
 function minGroupsForValidAssignment(balls: number[]): number {
   //   [1, 3, 3, 1, 2, 1, 3, 1, 1, 2, 3, 2, 1, 2];
-  log("balls", balls);
+  log("balls", balls, "debug");
 
   // 建立一個記錄每個編號球出現次數的字典
   const ballCountPerNumber: Record<number, number> = {};
   balls.forEach((number) => {
     ballCountPerNumber[number] = (ballCountPerNumber[number] || 0) + 1;
   });
-  log("ballCountPerNumber", ballCountPerNumber);
+  log("ballCountPerNumber", ballCountPerNumber, "debug");
 
   // 取出所有編號的球出現次數並進行排序
   const sortedCounts = Object.values(ballCountPerNumber).sort((a, b) => a - b);
-  log("sortedCounts", sortedCounts);
+  log("sortedCounts", sortedCounts, "debug");
 
   // 獲得排序後的數組長度
   const totalCounts = sortedCounts.length;
-  log("totalCounts", totalCounts);
+  log("totalCounts", totalCounts, "debug");
 
   // 初始化最小盒子的球數
   let minBoxCount = sortedCounts[0];
@@ -34,11 +37,12 @@ function minGroupsForValidAssignment(balls: number[]): number {
       currentIndex,
       minBoxCount,
       currentBallCount,
-    });
+    }, "debug");
+
     // 計算當前編號球數需要的盒子數，並保證最大盒子與最小盒子的球數差不超過一個，可能未裝滿
     const boxesNeeded = Math.ceil(currentBallCount / (minBoxCount + 1));
-    // 需要盒數裝滿 - 真實球數
-    const leftoverBalls = boxesNeeded * (minBoxCount + 1) -
+    // 差多少滿一盒子
+    const ballsShortOfFullBoxes = boxesNeeded * (minBoxCount + 1) -
       currentBallCount;
 
     // 累加需要的盒子數
@@ -47,26 +51,34 @@ function minGroupsForValidAssignment(balls: number[]): number {
 
     log("while info", {
       boxesNeeded,
-      leftoverBalls,
+      ballsShortOfFullBoxes,
       totalBoxesNeeded,
-    });
+    }, "debug");
 
-    // 如果剩餘球數超過一個盒子能裝的，則需要調整最小盒子的大小
-    if (leftoverBalls > boxesNeeded) {
+    // 本質上這邊計算利用率問題
+    // 如果差多少滿一盒子的球數大於需要的盒子數，則減少盒子數
+    // 因為代表可以把其他盒子抽一顆到這盒子
+    // 因為 最大最小只能差 1 所以如果產生這種情況，代表肯定會差到二顆
+    // while info init : {"currentIndex":2,"minBoxCount":4,"currentBallCount":6}
+    // while info : {"boxesNeeded":2,"ballsShortOfFullBoxes":4,"totalBoxesNeeded":4}
+    // 5 1 =>
+
+    if (ballsShortOfFullBoxes > boxesNeeded) {
       minBoxCount--;
       currentIndex = 0;
       totalBoxesNeeded = 0;
-      log("reset", {});
+      log("reset", {}, "debug");
       continue;
     }
   }
 
-  log("end", totalBoxesNeeded);
+  log("end", totalBoxesNeeded, "debug");
 
   return totalBoxesNeeded; // 返回最少需要的盒子數
 }
 
-function log(name: string, any: any) {
+function log(name: string, any: any, LogLevel: LogLevel = "info") {
+  if (LOG_LEVEL !== LogLevel) return;
   // console.log("===========================");
   console.log(`${name} : ${JSON.stringify(any)}`);
   // console.log("===========================");
@@ -78,19 +90,18 @@ export default function main() {
   const balls3 = [2, 2, 2, 2, 2, 1, 2]; // 4
   const balls4 = [1, 1, 3, 1, 1, 3]; // 3
   const balls5 = [2, 1, 1, 2, 2, 3, 1, 3, 1, 1, 1, 1, 2]; // 6
-  // 2-4 1-7 3-2
-
   const balls6 = [1, 3, 3, 1, 2, 1, 3, 1, 1, 2, 3, 2, 1, 2]; // 4
-
   const balls7 = [1, 1, 1, 3, 1, 1, 1, 1, 2, 3, 1, 3, 2, 1, 2, 3]; // 5
   const balls8 = [1, 1, 3, 3, 2, 3, 1, 1, 2, 3, 3, 3, 3, 2, 3, 1]; // 6
+
+  LOG_LEVEL = "debug";
 
   // log("balls1", minGroupsForValidAssignment(balls1));
   // log("balls2", minGroupsForValidAssignment(balls2));
   // log("balls3", minGroupsForValidAssignment(balls3));
   // log("balls4", minGroupsForValidAssignment(balls4));
   // log("balls5", minGroupsForValidAssignment(balls5));
-  // log("balls6", minGroupsForValidAssignment(balls6));
+  log("balls6", minGroupsForValidAssignment(balls6));
   // log("balls7", minGroupsForValidAssignment(balls7));
-  log("balls8", minGroupsForValidAssignment(balls8));
+  // log("balls8", minGroupsForValidAssignment(balls8));
 }
