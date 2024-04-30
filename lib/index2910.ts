@@ -20,7 +20,7 @@ function minGroupsForValidAssignment(balls: number[]): number {
   log("ballCountPerNumber", ballCountPerNumber, "debug");
 
   // 取出所有編號的球出現次數並進行排序
-  const sortedCounts = Object.values(ballCountPerNumber).sort((a, b) => a - b);
+  const sortedCounts = Object.values(ballCountPerNumber).sort((a, b) => b - a);
   log("sortedCounts", sortedCounts, "debug");
 
   // 獲得排序後的數組長度
@@ -28,7 +28,7 @@ function minGroupsForValidAssignment(balls: number[]): number {
   log("totalCounts", totalCounts, "debug");
 
   // 初始化最小盒子的球數
-  let minBoxCount = sortedCounts[0];
+  let minBoxCount = sortedCounts[totalCounts - 1];
   let currentIndex = 0; // 迭代器初始化
   let totalBoxesNeeded = 0; // 計數器，計算最少盒子數
   while (currentIndex < totalCounts) {
@@ -55,14 +55,8 @@ function minGroupsForValidAssignment(balls: number[]): number {
       totalBoxesNeeded,
     }, "debug");
 
-    // 本質上這邊計算利用率問題
-    // 如果差多少滿一盒子的球數大於需要的盒子數，則減少盒子數
-    // 因為代表可以把其他盒子抽一顆到這盒子
-    // 因為 最大最小只能差 1 所以如果產生這種情況，代表肯定會差到二顆
-    // while info init : {"currentIndex":2,"minBoxCount":4,"currentBallCount":6}
-    // while info : {"boxesNeeded":2,"ballsShortOfFullBoxes":4,"totalBoxesNeeded":4}
-    // 5 1 =>
-
+    // 因為每種編號的球要獨立分盒
+    // 如果多出的空位過多, 最大與最小就會差距大於 1
     if (ballsShortOfFullBoxes > boxesNeeded) {
       minBoxCount--;
       currentIndex = 0;
@@ -96,12 +90,12 @@ export default function main() {
 
   LOG_LEVEL = "debug";
 
-  // log("balls1", minGroupsForValidAssignment(balls1));
-  // log("balls2", minGroupsForValidAssignment(balls2));
-  // log("balls3", minGroupsForValidAssignment(balls3));
-  // log("balls4", minGroupsForValidAssignment(balls4));
-  // log("balls5", minGroupsForValidAssignment(balls5));
+  log("balls1", minGroupsForValidAssignment(balls1));
+  log("balls2", minGroupsForValidAssignment(balls2));
+  log("balls3", minGroupsForValidAssignment(balls3));
+  log("balls4", minGroupsForValidAssignment(balls4));
+  log("balls5", minGroupsForValidAssignment(balls5));
   log("balls6", minGroupsForValidAssignment(balls6));
-  // log("balls7", minGroupsForValidAssignment(balls7));
-  // log("balls8", minGroupsForValidAssignment(balls8));
+  log("balls7", minGroupsForValidAssignment(balls7));
+  log("balls8", minGroupsForValidAssignment(balls8));
 }
